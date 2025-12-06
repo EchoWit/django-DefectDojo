@@ -1,0 +1,90 @@
+rules:
+  ##############################################
+  # PYTHON / DJANGO — критичные уязвимости
+  ##############################################
+
+  - id: django-sql-injection-raw
+    message: "Possible SQL Injection via Django ORM raw()."
+    severity: ERROR
+    languages: [python]
+    pattern: |
+      $MODEL.objects.raw($QUERY)
+
+  - id: python-dangerous-subprocess
+    message: "Potential Command Injection via subprocess/os.system."
+    severity: ERROR
+    languages: [python]
+    pattern-either:
+      - pattern: subprocess.run($CMD, shell=True)
+      - pattern: os.system($CMD)
+      - pattern: subprocess.Popen($CMD, shell=True)
+
+  - id: python-django-mark-safe-xss
+    message: "Potential XSS: avoid using mark_safe() on user input."
+    severity: WARNING
+    languages: [python]
+    pattern: mark_safe($X)
+
+  - id: python-hardcoded-secrets
+    message: "Hardcoded secret value detected."
+    severity: WARNING
+    languages: [python]
+    pattern: $VAR = "$VALUE"
+    metadata:
+      likelihood: HIGH
+      impact: HIGH
+
+  - id: django-debug-production
+    message: "DEBUG=True in settings — dangerous for production."
+    severity: ERROR
+    languages: [python]
+    pattern: DEBUG = True
+
+  ##############################################
+  # JAVASCRIPT — XSS и опасные конструкции
+  ##############################################
+
+  - id: js-innerhtml-xss
+    message: "Possible DOM-based XSS via innerHTML assignment."
+    severity: ERROR
+    languages: [javascript]
+    pattern: $ELEM.innerHTML = $VAL
+
+  - id: js-dangerous-eval
+    message: "eval() is dangerous and may lead to RCE."
+    severity: ERROR
+    languages: [javascript]
+    pattern: eval($CODE)
+
+  - id: js-new-function-dangerous
+    message: "new Function() can be dangerous and allow code injection."
+    severity: WARNING
+    languages: [javascript]
+    pattern: new Function($ARGS)
+
+  ##############################################
+  # YAML — конфиги, секреты
+  ##############################################
+
+  - id: yaml-secret-key
+    message: "Possible secret detected in YAML."
+    severity: ERROR
+    languages: [yaml]
+    pattern-regex: "(?i)(secret|token|password|key):.+"
+
+  ##############################################
+  # DOCKER — опасные настройки
+  ##############################################
+
+  - id: docker-user-root
+    message: "Container runs as root — this is unsafe."
+    severity: WARNING
+    languages: [dockerfile]
+    pattern: USER root
+
+  - id: docker-latest-tag
+    message: "Avoid using 'latest' tag — pin image versions."
+    severity: WARNING
+    languages: [dockerfile]
+    pattern: FROM $IMAGE:latest
+
