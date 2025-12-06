@@ -148,3 +148,9 @@ docs/.devcontainer/Dockerfile
 docs/LICENSE
 docs/.hugo_build.lock
 .cursor-rules
+
+# DevSecOps local files
+devsecops-venv/
+security_logs/
+run_security_scan.sh
+
